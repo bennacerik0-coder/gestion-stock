@@ -1,0 +1,6 @@
+build:
+  command: npm install
+  image: node:18
+start:
+  command: node server/index.js
+  image: node:18
