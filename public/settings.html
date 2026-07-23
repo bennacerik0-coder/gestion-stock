@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parametres - Gestion-Stock</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">&#128230;</div>
+        <span class="sidebar-title">Gestion-Stock</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">&#128202;</span><span class="nav-label">Dashboard</span></a>
+        <a href="/products.html" class="nav-item" data-page="products"><span class="nav-icon">&#128230;</span><span class="nav-label">Produits</span></a>
+        <a href="/stock-movements.html" class="nav-item" data-page="stock-movements"><span class="nav-icon">&#128203;</span><span class="nav-label">Mouvements</span></a>
+        <a href="/suppliers.html" class="nav-item" data-page="suppliers"><span class="nav-icon">&#127970;</span><span class="nav-label">Fournisseurs</span></a>
+        <a href="/purchase-orders.html" class="nav-item" data-page="purchase-orders"><span class="nav-icon">&#128196;</span><span class="nav-label">Commandes</span></a>
+        <a href="/alerts.html" class="nav-item" data-page="alerts"><span class="nav-icon">&#9888;</span><span class="nav-label">Alertes</span><span class="nav-badge" id="alerts-badge" style="display:none;">0</span></a>
+        <a href="/settings.html" class="nav-item active" data-page="settings"><span class="nav-icon">&#9881;</span><span class="nav-label">Parametres</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="toggleTheme()" id="theme-toggle"><span class="nav-icon" id="theme-icon">&#127769;</span><span class="nav-label" id="theme-label">Mode clair</span></button>
+        <button class="nav-item" onclick="logout()"><span class="nav-icon">&#128682;</span><span class="nav-label">Deconnexion</span></button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <div class="topbar-title" id="page-title">Parametres</div>
+        <div class="topbar-right">
+          <button class="topbar-btn" onclick="window.location.href='/alerts.html'" id="topbar-alerts" title="Alertes">&#9888;<span class="topbar-badge" id="topbar-alerts-badge" style="display:none;">0</span></button>
+          <div class="topbar-user" id="topbar-user"><span class="topbar-avatar">&#128100;</span><span class="topbar-username" id="topbar-username">Admin</span></div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="tabs" id="settings-tabs">
+          <button class="tab-btn active" data-tab="profile" onclick="switchTab('profile')">&#128100; Profil</button>
+          <button class="tab-btn" data-tab="users" id="tab-users" onclick="switchTab('users')" style="display:none;">&#128101; Utilisateurs</button>
+          <button class="tab-btn" data-tab="company" onclick="switchTab('company')">&#127970; Entreprise</button>
+          <button class="tab-btn" data-tab="defaults" onclick="switchTab('defaults')">&#9881; Defaults</button>
+          <button class="tab-btn" data-tab="backup" onclick="switchTab('backup')">&#128190; Sauvegarde</button>
+          <button class="tab-btn" data-tab="activity" id="tab-activity" onclick="switchTab('activity')" style="display:none;">&#128221; Journal</button>
+        </div>
+
+        <div class="tab-content active" id="tab-profile">
+          <div class="card" style="max-width:600px;margin-bottom:24px;">
+            <div class="card-header"><span class="card-title">Mon profil</span></div>
+            <div class="card-body">
+              <form id="form-profile" onsubmit="return updateProfile(event)">
+                <div class="form-group"><label>Nom</label><input type="text" id="profile-name" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="profile-email" required readonly style="opacity:0.6;cursor:not-allowed;"></div>
+                <div class="form-group"><label>Role</label><input type="text" id="profile-role" readonly style="opacity:0.6;cursor:not-allowed;"></div>
+                <div style="margin-top:16px;"><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+              </form>
+            </div>
+          </div>
+          <div class="card" style="max-width:600px;">
+            <div class="card-header"><span class="card-title">Changer le mot de passe</span></div>
+            <div class="card-body">
+              <form id="form-password" onsubmit="return changePassword(event)">
+                <div class="form-group"><label>Mot de passe actuel</label><input type="password" id="pw-current" required></div>
+                <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="pw-new" required minlength="6"></div>
+                <div class="form-group"><label>Confirmer</label><input type="password" id="pw-confirm" required minlength="6"></div>
+                <div style="margin-top:16px;"><button type="submit" class="btn btn-primary">Modifier</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-users">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Gestion des utilisateurs</span><button class="btn btn-primary" onclick="openUserModal()">&#10010; Ajouter</button></div>
+            <div class="card-body">
+              <div class="toolbar"><input type="text" class="search-input" id="search-users" placeholder="Rechercher..." oninput="loadUsers()"></div>
+              <div class="table-wrapper"><table><thead><tr><th>Nom</th><th>Email</th><th>Role</th><th>Statut</th><th>Derniere connexion</th><th>Actions</th></tr></thead><tbody id="users-table"></tbody></table></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-company">
+          <div class="card" style="max-width:700px;">
+            <div class="card-header"><span class="card-title">Informations entreprise</span></div>
+            <div class="card-body">
+              <form id="form-company" onsubmit="return saveCompany(event)">
+                <div class="form-group"><label>Nom de l'entreprise</label><input type="text" id="company-name"></div>
+                <div class="grid-2">
+                  <div class="form-group"><label>Adresse</label><input type="text" id="company-address"></div>
+                  <div class="form-group"><label>Telephone</label><input type="text" id="company-phone"></div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group"><label>Email</label><input type="email" id="company-email"></div>
+                  <div class="form-group"><label>RC</label><input type="text" id="company-rc"></div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group"><label>ICE</label><input type="text" id="company-ice"></div>
+                  <div class="form-group"><label>Patente</label><input type="text" id="company-patent"></div>
+                </div>
+                <div class="form-group"><label>Logo (URL ou base64)</label><input type="text" id="company-logo" placeholder="https://... ou data:image/..."></div>
+                <div id="logo-preview" style="margin:8px 0;"></div>
+                <div style="margin-top:16px;"><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-defaults">
+          <div class="card" style="max-width:500px;">
+            <div class="card-header"><span class="card-title">Parametres par defaut</span></div>
+            <div class="card-body">
+              <form id="form-defaults" onsubmit="return saveDefaults(event)">
+                <div class="grid-2">
+                  <div class="form-group"><label>Stock minimum par defaut</label><input type="number" id="def-min-stock" min="0"></div>
+                  <div class="form-group"><label>Stock maximum par defaut</label><input type="number" id="def-max-stock" min="1"></div>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group"><label>Devise</label><select id="def-currency"><option value="MAD">MAD - Dirham</option><option value="EUR">EUR - Euro</option><option value="USD">USD - Dollar</option><option value="TND">TND - Dinar Tunisien</option><option value="DZD">DZD - Dinar Algerien</option></select></div>
+                  <div class="form-group"><label>Symbole</label><input type="text" id="def-currency-symbol" maxlength="5"></div>
+                </div>
+                <div style="margin-top:16px;"><button type="submit" class="btn btn-primary">Enregistrer</button></div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-backup">
+          <div class="card" style="max-width:600px;">
+            <div class="card-header"><span class="card-title">Sauvegarde de la base</span></div>
+            <div class="card-body">
+              <p style="color:var(--text-secondary);margin-bottom:16px;">Exportez toutes les donnees (produits, mouvements, commandes, fournisseurs, utilisateurs, alertes, parametres) en un seul fichier JSON.</p>
+              <button class="btn btn-primary" onclick="downloadBackup()">&#128190; Telecharger la sauvegarde</button>
+              <p style="color:var(--text-muted);font-size:12px;margin-top:12px;">Le fichier sera nomme backup-stock-YYYY-MM-DD.json</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-activity">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Journal d'activite</span></div>
+            <div class="card-body">
+              <div class="toolbar">
+                <input type="text" class="search-input" id="search-logs" placeholder="Rechercher..." oninput="loadLogs()">
+                <select id="filter-log-entity" onchange="loadLogs()">
+                  <option value="">Toutes les entites</option>
+                  <option value="product">Produits</option>
+                  <option value="stock_movement">Mouvements</option>
+                  <option value="purchase_order">Commandes</option>
+                  <option value="settings">Parametres</option>
+                  <option value="database">Sauvegarde</option>
+                </select>
+                <select id="filter-log-action" onchange="loadLogs()">
+                  <option value="">Toutes les actions</option>
+                  <option value="create">Creation</option>
+                  <option value="update">Modification</option>
+                  <option value="delete">Suppression</option>
+                  <option value="status_change">Changement statut</option>
+                  <option value="receive">Reception</option>
+                  <option value="backup">Sauvegarde</option>
+                </select>
+              </div>
+              <div class="table-wrapper"><table><thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Entite</th><th>Details</th></tr></thead><tbody id="logs-table"></tbody></table></div>
+              <div id="logs-pagination" style="display:flex;justify-content:center;padding:16px 0;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-overlay" id="modal-user">
+          <div class="modal">
+            <div class="modal-header"><span class="modal-title" id="user-modal-title">Ajouter un utilisateur</span><button class="modal-close" onclick="closeModal('modal-user')">&#10005;</button></div>
+            <div class="modal-body">
+              <form id="form-user">
+                <input type="hidden" id="user-id">
+                <div class="form-group"><label>Nom</label><input type="text" id="user-name" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="user-email" required></div>
+                <div class="form-group" id="pw-group"><label>Mot de passe</label><input type="password" id="user-password" minlength="6"></div>
+                <div class="form-group"><label>Role</label><select id="user-role"><option value="operator">Operateur</option><option value="manager">Manager</option><option value="admin">Admin</option></select></div>
+                <div class="form-group"><label>Actif</label><select id="user-active"><option value="true">Oui</option><option value="false">Non</option></select></div>
+              </form>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-user')">Annuler</button><button class="btn btn-primary" onclick="saveUser()">Enregistrer</button></div>
+          </div>
+        </div>
+
+        <div class="modal-overlay" id="modal-reset-pw">
+          <div class="modal">
+            <div class="modal-header"><span class="modal-title">Reinitialiser le mot de passe</span><button class="modal-close" onclick="closeModal('modal-reset-pw')">&#10005;</button></div>
+            <div class="modal-body">
+              <input type="hidden" id="reset-user-id">
+              <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="reset-new-pw" required minlength="6"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-reset-pw')">Annuler</button><button class="btn btn-primary" onclick="saveResetPassword()">Reinitialiser</button></div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+  <script src="/js/app.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>

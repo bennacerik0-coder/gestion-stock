@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertes | Gestion-Stock</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">&#128230;</div>
+        <span class="sidebar-title">Gestion-Stock</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">&#128202;</span><span class="nav-label">Dashboard</span></a>
+        <a href="/products.html" class="nav-item" data-page="products"><span class="nav-icon">&#128230;</span><span class="nav-label">Produits</span></a>
+        <a href="/stock-movements.html" class="nav-item" data-page="stock-movements"><span class="nav-icon">&#128203;</span><span class="nav-label">Mouvements</span></a>
+        <a href="/suppliers.html" class="nav-item" data-page="suppliers"><span class="nav-icon">&#127970;</span><span class="nav-label">Fournisseurs</span></a>
+        <a href="/purchase-orders.html" class="nav-item" data-page="purchase-orders"><span class="nav-icon">&#128196;</span><span class="nav-label">Commandes</span></a>
+        <a href="/alerts.html" class="nav-item active" data-page="alerts"><span class="nav-icon">&#9888;</span><span class="nav-label">Alertes</span><span class="nav-badge" id="alerts-badge" style="display:none;">0</span></a>
+        <a href="/settings.html" class="nav-item" data-page="settings"><span class="nav-icon">&#9881;</span><span class="nav-label">Parametres</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="toggleTheme()" id="theme-toggle"><span class="nav-icon" id="theme-icon">&#127769;</span><span class="nav-label" id="theme-label">Mode clair</span></button>
+        <button class="nav-item" onclick="logout()"><span class="nav-icon">&#128682;</span><span class="nav-label">Deconnexion</span></button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <div class="topbar-title" id="page-title">Alertes</div>
+        <div class="topbar-right">
+          <button class="topbar-btn" onclick="window.location.href='/alerts.html'">&#9888;<span class="topbar-badge" id="topbar-alerts-badge" style="display:none;">0</span></button>
+          <div class="topbar-user"><span class="topbar-avatar">&#128100;</span><span class="topbar-username" id="topbar-username">Admin</span></div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="markAllRead()">Tout marquer lu</button>
+          <select id="filter-severity" onchange="loadAlerts()">
+            <option value="">Toutes les severites</option>
+            <option value="critical">Critique</option>
+            <option value="warning">Avertissement</option>
+            <option value="info">Information</option>
+          </select>
+          <select id="filter-read" onchange="loadAlerts()">
+            <option value="">Toutes</option>
+            <option value="false">Non lues</option>
+            <option value="true">Lues</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Severite</th>
+                  <th>Type</th>
+                  <th>Message</th>
+                  <th>Produit</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="alerts-table-body">
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-secondary);">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <div class="toast" id="toast"></div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/alerts.js"></script>
+</body>
+</html>

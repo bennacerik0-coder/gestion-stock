@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commandes | Gestion-Stock</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header"><div class="sidebar-logo">&#128230;</div><span class="sidebar-title">Gestion-Stock</span></div>
+      <nav class="sidebar-nav">
+        <a href="/dashboard.html" class="nav-item" data-page="dashboard"><span class="nav-icon">&#128202;</span><span class="nav-label">Dashboard</span></a>
+        <a href="/products.html" class="nav-item" data-page="products"><span class="nav-icon">&#128230;</span><span class="nav-label">Produits</span></a>
+        <a href="/stock-movements.html" class="nav-item" data-page="stock-movements"><span class="nav-icon">&#128203;</span><span class="nav-label">Mouvements</span></a>
+        <a href="/suppliers.html" class="nav-item" data-page="suppliers"><span class="nav-icon">&#127970;</span><span class="nav-label">Fournisseurs</span></a>
+        <a href="/purchase-orders.html" class="nav-item active" data-page="purchase-orders"><span class="nav-icon">&#128196;</span><span class="nav-label">Commandes</span></a>
+        <a href="/alerts.html" class="nav-item" data-page="alerts"><span class="nav-icon">&#9888;</span><span class="nav-label">Alertes</span><span class="nav-badge" id="alerts-badge" style="display:none;">0</span></a>
+        <a href="/settings.html" class="nav-item" data-page="settings"><span class="nav-icon">&#9881;</span><span class="nav-label">Parametres</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="nav-item" onclick="toggleTheme()" id="theme-toggle"><span class="nav-icon" id="theme-icon">&#127769;</span><span class="nav-label" id="theme-label">Mode clair</span></button>
+        <button class="nav-item" onclick="logout()"><span class="nav-icon">&#128682;</span><span class="nav-label">Deconnexion</span></button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="topbar">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <div class="topbar-title" id="page-title">Commandes d'achat</div>
+        <div class="topbar-right">
+          <button class="topbar-btn" onclick="window.location.href='/alerts.html'">&#9888;<span class="topbar-badge" id="topbar-alerts-badge" style="display:none;">0</span></button>
+          <div class="topbar-user"><span class="topbar-avatar">&#128100;</span><span class="topbar-username" id="topbar-username">Admin</span></div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="openOrderModal()">&#10010; Nouvelle commande</button>
+          <select id="filter-status" onchange="loadOrders()">
+            <option value="">Tous les statuts</option>
+            <option value="draft">Brouillon</option>
+            <option value="pending">En attente</option>
+            <option value="approved">Approuvee</option>
+            <option value="ordered">Commandee</option>
+            <option value="partial">Partielle</option>
+            <option value="received">Recue</option>
+            <option value="cancelled">Annulee</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Commande</th>
+                  <th>Fournisseur</th>
+                  <th>Articles</th>
+                  <th>Total</th>
+                  <th>Statut</th>
+                  <th>Creation</th>
+                  <th>Prevu</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body">
+                <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-secondary);">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- ORDER MODAL -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal" style="max-width:750px;">
+      <div class="modal-header">
+        <div class="modal-title" id="order-modal-title">Nouvelle commande</div>
+        <button class="modal-close" onclick="closeModal('order-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="order-id">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="form-group"><label>Fournisseur *</label><select id="order-supplier"></select></div>
+          <div class="form-group"><label>Date prevue</label><input type="date" id="order-expected-date"></div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea id="order-notes" rows="2" placeholder="Notes optionnelles"></textarea></div>
+
+        <div style="margin-top:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <strong>Articles</strong>
+            <button class="btn btn-secondary btn-sm" onclick="addOrderItem()">+ Ajouter un article</button>
+          </div>
+          <div id="order-items-container"></div>
+          <div style="text-align:right;margin-top:12px;font-size:16px;font-weight:700;">
+            Total: <span id="order-total">0.00</span> MAD
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('order-modal')">Annuler</button>
+        <button class="btn btn-secondary" onclick="saveOrder('draft')">Brouillon</button>
+        <button class="btn btn-primary" onclick="saveOrder('pending')">Soumettre</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEIVE MODAL -->
+  <div class="modal-overlay" id="receive-modal">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <div class="modal-title" id="receive-modal-title">Receptionner les articles</div>
+        <button class="modal-close" onclick="closeModal('receive-modal')">&times;</button>
+      </div>
+      <div class="modal-body" id="receive-items-container"></div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('receive-modal')">Annuler</button>
+        <button class="btn btn-success" onclick="confirmReceive()">Confirmer la reception</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="/js/app.js"></script>
+  <script src="/js/purchase-orders.js"></script>
+</body>
+</html>
